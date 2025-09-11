@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex, nofollow">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Secure Payment Verification — DEMO</title>
+  <style>
+    :root{
+      --bg:#f4f6f9;
+      --card:#ffffff;
+      --accent:#0b6efd;
+      --muted:#6b7280;
+      --danger:#d32f2f;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,var(--bg),#eef2f6);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+    .container{
+      width:420px;
+      max-width:calc(100% - 48px);
+      background:var(--card);
+      border-radius:12px;
+      box-shadow: 0 10px 30px rgba(16,24,40,0.08);
+      padding:22px;
+      position:relative;
+      overflow:hidden;
+    }
+    .demo-banner{
+      position:absolute;
+      top:10px;
+      right:-60px;
+      transform:rotate(25deg);
+      background:#ffd1d1;
+      color:var(--danger);
+      font-weight:700;
+      padding:6px 80px;
+      box-shadow:0 4px 10px rgba(0,0,0,0.06);
+      letter-spacing:0.6px;
+    }
+    .header{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      margin-bottom:10px;
+    }
+    .brand{
+      width:56px;
+      height:40px;
+      background:linear-gradient(135deg,#e6eefc,#f8faff);
+      border-radius:8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--accent);
+      font-weight:700;
+      font-size:18px;
+    }
+    h1{font-size:18px;margin:0;}
+    p.lead{margin:6px 0 18px;color:var(--muted);font-size:14px;}
+    .card {
+      border:1px solid #eef2f7;
+      border-radius:10px;
+      padding:14px;
+      background:linear-gradient(180deg,#ffffff,#fbfdff);
+      margin-bottom:14px;
+    }
+    label{font-size:13px;color:#374151;display:block;margin-bottom:6px;}
+    input[type="text"], input[type="password"], input[type="tel"]{
+      width:100%;
+      padding:12px 10px;
+      border-radius:8px;
+      border:1px solid #dbe7f5;
+      font-size:15px;
+      box-sizing:border-box;
+      outline:none;
+    }
+    .hint{font-size:12px;color:var(--muted);margin-top:8px;}
+    .actions{display:flex;gap:8px;margin-top:14px;align-items:center;}
+    button{
+      background:var(--accent);
+      color:#fff;
+      border:none;
+      padding:11px 14px;
+      border-radius:9px;
+      cursor:pointer;
+      font-weight:600;
+      flex:1;
+      font-size:15px;
+    }
+    button.secondary{background:#eef3ff;color:var(--accent);flex:0.6;border:1px solid #dbe9ff;}
+    .small {font-size:13px;color:var(--muted);}
+    .legal{font-size:12px;color:#9aa4b2;margin-top:12px;}
+    .success{
+      display:none;
+      padding:16px;
+      border-radius:8px;
+      background:#f0fff4;
+      color:#065f46;
+      border:1px solid #bbf7d0;
+      margin-top:10px;
+    }
+    .error{
+      display:none;
+      padding:12px;
+      border-radius:8px;
+      background:#fff0f1;color:#991b1b;border:1px solid #f8cacc;margin-top:10px;
+    }
+    .foot{
+      margin-top:14px;
+      font-size:12px;color:var(--muted);
+      display:flex;justify-content:space-between;align-items:center;
+    }
+    .spinner{display:inline-block;width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,0.25);border-top-color:rgba(255,255,255,0.9);animation:spin 1s linear infinite;vertical-align:middle;margin-right:8px;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+  <div class="container" role="main" aria-labelledby="title">
+    <div class="demo-banner" aria-hidden="true">DEMO — NOT REAL</div>
+
+    <div class="header">
+      <div class="brand" aria-hidden="true">SP</div>
+      <div>
+        <h1 id="title">Secure Payment Verification</h1>
+        <p class="lead">For your protection, please confirm the one-time code sent to your phone or email.</p>
+      </div>
+    </div>
+
+    <div class="card" aria-live="polite">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <label>Card</label>
+          <div style="font-weight:600;font-size:15px">•••• •••• •••• 4242</div>
+          <div class="hint">Order: #<strong>123456</strong> • Amount: <strong>$49.99</strong></div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:12px;color:var(--muted)">Method</div>
+          <div style="font-weight:700">SMS / Email</div>
+        </div>
+      </div>
+
+      <form id="verifyForm" autocomplete="off" novalidate>
+        <div style="margin-bottom:12px">
+          <label for="code">One-time code</label>
+          <input id="code" name="code" type="tel" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit code" aria-describedby="codeHelp" />
+          <div id="codeHelp" class="hint">A 6-digit verification code was sent to the phone number on file.</div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" id="submitBtn" aria-live="polite">Verify & Complete</button>
+          <button type="button" class="secondary" id="resendBtn">Resend</button>
+        </div>
+
+        <div class="success" id="successBox" role="status">✅ Verification successful — payment completed (DEMO).</div>
+        <div class="error" id="errorBox" role="alert">Invalid code. Try again or request a new code.</div>
+      </form>
+
+      <div class="foot">
+        <div class="small">Need help? <a href="#" onclick="alert('Contact merchant support (demo)')">Contact merchant</a></div>
+        <div class="small">Secure • Encrypted</div>
+      </div>
+    </div>
+
+    <div class="legal">This is a demo verification page for development and testing. Do not enter real credentials here.</div>
+  </div>
+
+  <script>
+    const form = document.getElementById('verifyForm');
+    const codeInput = document.getElementById('code');
+    const submitBtn = document.getElementById('submitBtn');
+    const resendBtn = document.getElementById('resendBtn');
+    const successBox = document.getElementById('successBox');
+    const errorBox = document.getElementById('errorBox');
+
+    function showError(msg) {
+      errorBox.textContent = msg;
+      errorBox.style.display = 'block';
+      successBox.style.display = 'none';
+    }
+    function showSuccess(msg) {
+      successBox.textContent = msg;
+      successBox.style.display = 'block';
+      errorBox.style.display = 'none';
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const code = codeInput.value.trim();
+      // simple client-side validation for demo only
+      if(!/^[0-9]{6}$/.test(code)){
+        showError('Please enter a 6-digit numeric code.');
+        return;
+      }
+
+      // Simulate verification delay
+      submitBtn.disabled = true;
+      const spinner = document.createElement('span');
+      spinner.className = 'spinner';
+      submitBtn.prepend(spinner);
+      const previousText = submitBtn.textContent;
+
+      setTimeout(() => {
+        submitBtn.disabled = false;
+        spinner.remove();
+        // DEMO behavior: accept code "123456" as correct
+        if(code === '123456'){
+          showSuccess('✅ Verification successful — payment completed (DEMO).');
+        } else {
+          showError('Invalid code. Try "123456" (demo) or resend.');
+        }
+      }, 1000);
+    });
+
+    resendBtn.addEventListener('click', () => {
+      // Demo: pretend to resend
+      alert('A new verification code was sent (demo). Try code: 123456');
+    });
+
+    // Accessibility: focus the input on load
+    window.addEventListener('load', () => codeInput.focus());
+  </script>
+  <script>
+    // Modern API to detect reload
+    if (performance.getEntriesByType("navigation")[0].type === "reload") {
+        window.location.href = "https://www.eon.de/de/pk.html";
+    }
+  </script>
+
+</body>
+</html>

