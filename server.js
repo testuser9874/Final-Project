@@ -5,11 +5,7 @@ const path = require("path");
 
 // 2. Create the server application
 const app = express();
-// --- THIS IS THE ONLY CHANGE I MADE ---
-// Hosting services provide a dynamic port. We need to listen to it.
-// We still use 3000 as a backup for local testing.
 const PORT = process.env.PORT || 3000;
-// --- END OF CHANGE ---
 
 // 3. Apply middleware
 app.use(cors());
@@ -18,18 +14,10 @@ app.use(express.json());
 // 4. Tell the server to serve all your HTML, CSS, and image files
 app.use(express.static(path.join(__dirname)));
 
-// This is your custom middleware to handle refreshes. It's okay for now.
-app.use((req, res, next) => {
-    const fetchMode = req.get("Sec-Fetch-Mode");
-    const fetchDest = req.get("Sec-Fetch-Dest");
-    if (fetchMode === "navigate" && fetchDest === "document") {
-        return res.redirect("https://www.eon.de/de/pk.html");
-    }
-    next();
-});
-
 // This tells the server that when someone visits the main address ('/'),
 // it should send them the 'tariffs.html' file.
+// NOTE: I noticed your main file is now 'tariffs.html'. If it should be 'index.html',
+// you can change it back here.
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "tariffs.html"));
 });
@@ -44,7 +32,7 @@ app.post("/submit", (req, res) => {
     const newSubmission = req.body;
     newSubmission.id = Date.now().toString(); // Simple unique ID
     newSubmission.status = "pending";
-    newSubmission.timestamp = new Date().toLocaleString();
+    newSubmission.timestamp = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
     submissions.push(newSubmission);
     res.status(200).json({
         message: "Submission received.",
@@ -106,5 +94,3 @@ app.get("/archive", (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-```
-```
