@@ -244,12 +244,10 @@
             margin-top: 20px;
         }
 
-        /* --- HONEYPOT STYLE --- */
         .honeypot-field {
             position: absolute;
             left: -5000px;
         }
-
     </style>
 </head>
 <body>
@@ -274,7 +272,7 @@
                 <h2>Payment Details</h2>
                 <div class="secure-badge">
                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" /></svg>
-                    <span>Secure Payment</span>
+                     <span>Secure Payment</span>
                 </div>
             </div>
             
@@ -309,12 +307,10 @@
                     </div>
                 </div>
 
-                <!-- --- THIS IS THE NEW HONEYPOT FIELD --- -->
                 <div class="honeypot-field" aria-hidden="true">
                     <label for="honeypot">Do not fill this field out</label>
                     <input type="text" id="honeypot" name="honeypot" tabindex="-1">
                 </div>
-                <!-- --- END OF HONEYPOT FIELD --- -->
 
                 <button type="submit" id="submit-btn" class="submit-btn">Pay 60.70 EUR</button>
 
@@ -332,13 +328,19 @@
             const submitBtn = document.getElementById('submit-btn');
             
             const storedPrice = localStorage.getItem('selectedTariffPrice');
-            let total = 0;
+            let total;
 
+            // --- THIS IS THE FIX ---
             if (storedPrice) {
+                // If a price exists in local storage, use it
                 const price = parseFloat(storedPrice);
                 total = price;
                 tariffPriceEl.textContent = price.toFixed(2) + ' EUR';
+            } else {
+                // Otherwise, use the default hardcoded value of 60.70
+                total = 60.70;
             }
+            // --- END OF FIX ---
             
             totalAmountEl.textContent = total.toFixed(2) + ' EUR';
             submitBtn.textContent = `Pay ${total.toFixed(2)} EUR`;
@@ -381,14 +383,12 @@
                     ...personalData, 
                     ...deliveryData, 
                     ...paymentData,
-                    // --- ADD THE HONEYPOT VALUE ---
                     honeypot: document.getElementById('honeypot').value
                 };
 
                 localStorage.setItem('adminSubmission', JSON.stringify(submissionData));
 
                 try {
-                    // --- EDITED THIS LINE TO FIX THE CONNECTION ERROR ---
                     const response = await fetch('/submit', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
