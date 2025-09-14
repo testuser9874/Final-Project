@@ -7,46 +7,7 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- THIS IS THE FIX ---
-// Tell Express to trust the first proxy in front of it (which is Render's).
-// This allows req.ip to show the true user IP address.
-app.set('trust proxy', 1);
-// --- END OF FIX ---
-
-// IP TRACKING
-const visitedIPs = new Set();
-
-const ipBlocker = (req, res, next) => {
-    const allowedPaths = [
-        '/admin.html',
-        '/submit',
-        '/submission',
-        '/update-status',
-        '/archive'
-    ];
-    
-    if (allowedPaths.some(path => req.path.startsWith(path)) || req.path.startsWith('/get-status/')) {
-        return next();
-    }
-
-    const userIp = req.ip; 
-
-    if (visitedIPs.has(userIp)) {
-        return res.status(403).send(`
-            <div style="font-family: sans-serif; text-align: center; padding-top: 50px;">
-                <h1>Access Denied</h1>
-                <p>This link was for one-time use and has already been accessed from this network.</p>
-            </div>
-        `);
-    }
-
-    visitedIPs.add(userIp);
-    next();
-};
-
-app.use(ipBlocker);
-
-// 3. Apply other middleware
+// 3. Apply middleware
 app.use(cors());
 app.use(express.json());
 
