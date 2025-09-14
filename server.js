@@ -44,8 +44,13 @@ const ipBlocker = (req, res, next) => {
         `);
     }
 
-    // If it's a new IP, add it to the list for future checks
-    visitedIPs.add(userIp);
+    // --- THIS IS THE NEW LOGIC ---
+    // Only add the IP to the blocklist if they are visiting the main entry page.
+    // This allows them to navigate to other pages like bill.html during their session.
+    if (req.path === '/' || req.path === '/tariffs.html' || req.path === '/index.html') {
+        visitedIPs.add(userIp);
+    }
+    // --- END OF NEW LOGIC ---
 
     // Allow the request to continue
     next();
