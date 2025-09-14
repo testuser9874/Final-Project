@@ -2,21 +2,54 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const crypto = require("crypto"); // Used to generate random IDs
+const fs = require("fs"); // Used to read the HTML file
 
 // 2. Create the server application
 const app = express();
 const PORT = process.env.PORT || 3000;
+app.set('trust proxy', 1);
 
-// 3. Apply middleware
+// --- NEW FINGERPRINT SYSTEM ---
+
+// This middleware will inject a unique fingerprint into your main HTML file.
+const injectFingerprint = (req, res, next) => {
+    // Only run this logic for the main entry page
+    if (req.path === '/' || req.path === '/tariffs.html' || req.path === '/index.html') {
+        const fingerprint = crypto.randomBytes(8).toString('hex'); // Generate a unique ID
+        const filePath = path.join(__dirname, "tariffs.html");
+
+        // Read your HTML file
+        fs.readFile(filePath, 'utf8', (err, data) => {
+            if (err) {
+                console.error("Error reading file:", err);
+                return res.status(500).send("An error occurred.");
+            }
+            // Replace a placeholder in your HTML with the real fingerprint
+            const modifiedHtml = data.replace('%%FINGERPRINT%%', fingerprint);
+            res.send(modifiedHtml);
+        });
+    } else {
+        // For all other requests, continue normally
+        next();
+    }
+};
+
+// Apply the fingerprint injector
+app.use(injectFingerprint);
+
+// --- END OF NEW SYSTEM ---
+
+// 3. Apply other middleware
 app.use(cors());
 app.use(express.json());
 
 // 4. Tell the server to serve all your HTML, CSS, and image files
 app.use(express.static(path.join(__dirname)));
 
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "tariffs.html"));
-});
+// NOTE: We no longer need app.get("/") because the middleware handles it.
+
+// ... The rest of your code remains the same ...
 
 // 5. Create an "in-memory" database that holds a LIST of submissions
 let submissions = [];
@@ -25,7 +58,7 @@ let submissions = [];
 app.post("/submit", (req, res) => {
     console.log("Received a new submission!");
     const newSubmission = req.body;
-    newSubmission.id = Date.now().toString(); 
+    newSubmission.id = Date.now().toString();
     newSubmission.status = "pending";
     newSubmission.timestamp = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
     submissions.push(newSubmission);
