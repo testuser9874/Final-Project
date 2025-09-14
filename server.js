@@ -7,11 +7,16 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- UPDATED IP TRACKING ---
+// --- THIS IS THE FIX ---
+// Tell Express to trust the first proxy in front of it (which is Render's).
+// This allows req.ip to show the true user IP address.
+app.set('trust proxy', 1);
+// --- END OF FIX ---
+
+// IP TRACKING
 const visitedIPs = new Set();
 
 const ipBlocker = (req, res, next) => {
-    // These are the paths that should NEVER be blocked.
     const allowedPaths = [
         '/admin.html',
         '/submit',
@@ -20,10 +25,7 @@ const ipBlocker = (req, res, next) => {
         '/archive'
     ];
     
-    // Check if the request path starts with any of the allowed paths.
-    // We also check for /get-status/ which is a dynamic route.
     if (allowedPaths.some(path => req.path.startsWith(path)) || req.path.startsWith('/get-status/')) {
-        // If it's an allowed path, skip the IP blocker entirely.
         return next();
     }
 
@@ -42,10 +44,7 @@ const ipBlocker = (req, res, next) => {
     next();
 };
 
-// Apply the IP blocker middleware to ALL incoming requests
 app.use(ipBlocker);
-// --- END OF UPDATE ---
-
 
 // 3. Apply other middleware
 app.use(cors());
@@ -54,8 +53,6 @@ app.use(express.json());
 // 4. Tell the server to serve all your HTML, CSS, and image files
 app.use(express.static(path.join(__dirname)));
 
-// This tells the server that when someone visits the main address ('/'),
-// it should send them the 'tariffs.html' file.
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "tariffs.html"));
 });
