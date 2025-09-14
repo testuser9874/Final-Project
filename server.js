@@ -2,54 +2,41 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-const crypto = require("crypto"); // Used to generate random IDs
-const fs = require("fs"); // Used to read the HTML file
+const crypto = require("crypto");
+const fs = require("fs");
 
 // 2. Create the server application
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.set('trust proxy', 1);
 
-// --- NEW FINGERPRINT SYSTEM ---
-
-// This middleware will inject a unique fingerprint into your main HTML file.
-const injectFingerprint = (req, res, next) => {
-    // Only run this logic for the main entry page
-    if (req.path === '/' || req.path === '/index.html' || req.path === '/index.html') {
-        const fingerprint = crypto.randomBytes(8).toString('hex'); // Generate a unique ID
-        const filePath = path.join(__dirname, "index.html");
-
-        // Read your HTML file
-        fs.readFile(filePath, 'utf8', (err, data) => {
-            if (err) {
-                console.error("Error reading file:", err);
-                return res.status(500).send("An error occurred.");
-            }
-            // Replace a placeholder in your HTML with the real fingerprint
-            const modifiedHtml = data.replace('%%FINGERPRINT%%', fingerprint);
-            res.send(modifiedHtml);
-        });
-    } else {
-        // For all other requests, continue normally
-        next();
-    }
-};
-
-// Apply the fingerprint injector
-app.use(injectFingerprint);
-
-// --- END OF NEW SYSTEM ---
-
-// 3. Apply other middleware
+// 3. Apply general middleware
 app.use(cors());
 app.use(express.json());
 
-// 4. Tell the server to serve all your HTML, CSS, and image files
+// 4. Serve all static files like CSS, images, and other HTML files FIRST.
+// This is the main part of the fix.
 app.use(express.static(path.join(__dirname)));
 
-// NOTE: We no longer need app.get("/") because the middleware handles it.
+// --- FINGERPRINT SYSTEM FOR THE MAIN PAGE ---
+// This middleware will now only run for the main entry page.
+app.get("/", (req, res) => {
+    const fingerprint = crypto.randomBytes(8).toString('hex');
+    const filePath = path.join(__dirname, "index.html");
 
-// ... The rest of your code remains the same ...
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error("Error reading index.html:", err);
+            // If index.html doesn't exist, send a clear error.
+            return res.status(404).send("index.html not found.");
+        }
+        // Replace a placeholder in your HTML with the real fingerprint
+        const modifiedHtml = data.replace('%%FINGERPRINT%%', fingerprint);
+        res.send(modifiedHtml);
+    });
+});
+
+// --- END OF FINGERPRINT SYSTEM ---
 
 // 5. Create an "in-memory" database that holds a LIST of submissions
 let submissions = [];
