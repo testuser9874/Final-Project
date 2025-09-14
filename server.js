@@ -7,54 +7,7 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// This is CRITICAL for getting the correct user IP on Render
-app.set('trust proxy', 1);
-
-// This Set will store all IPs that have visited the site.
-const visitedIPs = new Set();
-
-// This is our IP blocking middleware.
-const ipBlocker = (req, res, next) => {
-    // These are the paths that should NEVER be blocked.
-    const allowedPaths = [
-        '/admin.html',
-        '/submit',
-        '/submission',
-        '/update-status',
-        '/archive'
-    ];
-    
-    // Check if the request is for an allowed path (including the dynamic /get-status/:id)
-    if (allowedPaths.some(path => req.path.startsWith(path)) || req.path.startsWith('/get-status/')) {
-        // If it's an allowed path, skip the IP blocker entirely.
-        return next();
-    }
-
-    // Get the true user IP address
-    const userIp = req.ip; 
-
-    // Check if the user's IP is already in our list
-    if (visitedIPs.has(userIp)) {
-        // If it is, send a "Forbidden" status and a message.
-        return res.status(403).send(`
-            <div style="font-family: sans-serif; text-align: center; padding-top: 50px;">
-                <h1>Access Denied</h1>
-                <p>This link was for one-time use and has already been accessed from this network.</p>
-            </div>
-        `);
-    }
-
-    // If it's a new IP, add it to the list for future checks
-    visitedIPs.add(userIp);
-
-    // Allow the request to continue
-    next();
-};
-
-// Apply the IP blocker middleware to ALL incoming requests
-app.use(ipBlocker);
-
-// 3. Apply other middleware
+// 3. Apply middleware
 app.use(cors());
 app.use(express.json());
 
