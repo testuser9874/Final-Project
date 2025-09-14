@@ -15,9 +15,9 @@ app.set('trust proxy', 1);
 // This middleware will inject a unique fingerprint into your main HTML file.
 const injectFingerprint = (req, res, next) => {
     // Only run this logic for the main entry page
-    if (req.path === '/' || req.path === '/tariffs.html' || req.path === '/index.html') {
+    if (req.path === '/' || req.path === '/index.html' || req.path === '/index.html') {
         const fingerprint = crypto.randomBytes(8).toString('hex'); // Generate a unique ID
-        const filePath = path.join(__dirname, "tariffs.html");
+        const filePath = path.join(__dirname, "index.html");
 
         // Read your HTML file
         fs.readFile(filePath, 'utf8', (err, data) => {
