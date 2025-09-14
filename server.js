@@ -7,20 +7,29 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- NEW CODE: IP TRACKING ---
-// Create a Set to store IPs that have visited. A Set is used for fast lookups.
-// IMPORTANT: This list will be cleared every time your server restarts on Render.
-// For a permanent solution, you would need to use a database.
+// --- UPDATED IP TRACKING ---
 const visitedIPs = new Set();
 
-// This is our IP blocking middleware. It will run on every request.
 const ipBlocker = (req, res, next) => {
-    // Render and other hosts set req.ip correctly even behind a proxy
+    // These are the paths that should NEVER be blocked.
+    const allowedPaths = [
+        '/admin.html',
+        '/submit',
+        '/submission',
+        '/update-status',
+        '/archive'
+    ];
+    
+    // Check if the request path starts with any of the allowed paths.
+    // We also check for /get-status/ which is a dynamic route.
+    if (allowedPaths.some(path => req.path.startsWith(path)) || req.path.startsWith('/get-status/')) {
+        // If it's an allowed path, skip the IP blocker entirely.
+        return next();
+    }
+
     const userIp = req.ip; 
 
-    // Check if the user's IP is already in our list
     if (visitedIPs.has(userIp)) {
-        // If it is, send a "Forbidden" status and a message.
         return res.status(403).send(`
             <div style="font-family: sans-serif; text-align: center; padding-top: 50px;">
                 <h1>Access Denied</h1>
@@ -29,16 +38,13 @@ const ipBlocker = (req, res, next) => {
         `);
     }
 
-    // If it's a new IP, add it to the list for future checks
     visitedIPs.add(userIp);
-
-    // Continue to the next step (serving the website)
     next();
 };
 
 // Apply the IP blocker middleware to ALL incoming requests
 app.use(ipBlocker);
-// --- END OF NEW CODE ---
+// --- END OF UPDATE ---
 
 
 // 3. Apply other middleware
@@ -56,9 +62,6 @@ app.get("/", (req, res) => {
 
 // 5. Create an "in-memory" database that holds a LIST of submissions
 let submissions = [];
-
-// ... (The rest of your endpoints: /submit, /submission, /update-status, etc.)
-// No changes are needed to your existing endpoints.
 
 // 6. Endpoint for receiving user data
 app.post("/submit", (req, res) => {
@@ -123,7 +126,6 @@ app.get("/archive", (req, res) => {
         .reverse();
     res.status(200).json(archivedSubmissions);
 });
-
 
 // 11. Start the server
 app.listen(PORT, () => {
