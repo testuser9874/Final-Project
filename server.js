@@ -7,16 +7,13 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// --- NEW CODE: IP BLOCKER SETUP ---
-
 // This is CRITICAL for getting the correct user IP on Render
 app.set('trust proxy', 1);
 
 // This Set will store all IPs that have visited the site.
-// Note: This list is stored in memory and will reset if the server restarts.
 const visitedIPs = new Set();
 
-// This is our IP blocking middleware function.
+// This is our IP blocking middleware.
 const ipBlocker = (req, res, next) => {
     // These are the paths that should NEVER be blocked.
     const allowedPaths = [
@@ -56,8 +53,6 @@ const ipBlocker = (req, res, next) => {
 
 // Apply the IP blocker middleware to ALL incoming requests
 app.use(ipBlocker);
-// --- END OF NEW CODE ---
-
 
 // 3. Apply other middleware
 app.use(cors());
