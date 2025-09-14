@@ -1,49 +1,7 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <script>
-    // Define a unique key for your site in localStorage
-    const accessKey = 'hasVisitedAndLeftMyApp';
-
-    // 1. CHECK ON ENTRY
-    // This runs immediately when the page starts to load
-    if (localStorage.getItem(accessKey) === 'true') {
-        // If the flag is set, block the user immediately.
-        // We replace the entire page content with a message.
-        document.documentElement.innerHTML = `
-            <head>
-                <title>Access Denied</title>
-                <style>
-                    body { 
-                        font-family: sans-serif; 
-                        background-color: #111; 
-                        color: #eee; 
-                        display: flex; 
-                        justify-content: center; 
-                        align-items: center; 
-                        height: 100vh; 
-                        margin: 0; 
-                    }
-                    h1 { 
-                        text-align: center;
-                        padding: 20px;
-                    }
-                </style>
-            </head>
-            <body>
-                <h1>This link was for one-time use and has expired.</h1>
-            </body>
-        `;
-        // We stop any further script execution
-        throw new Error("One-time access has been used.");
-    }
-
-    // 2. SET ON EXIT
-    // This adds an event listener that will run when the user tries to close the tab or navigate away.
-    window.addEventListener('beforeunload', function (e) {
-        localStorage.setItem(accessKey, 'true');
-    });
-</script>
+    
     <meta name="robots" content="noindex, nofollow">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
