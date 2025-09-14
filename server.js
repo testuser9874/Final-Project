@@ -11,7 +11,6 @@ const PORT = process.env.PORT || 3000;
 app.set('trust proxy', 1);
 
 // This Set will store all IPs that have visited the site.
-// Deploying this code will start this list fresh.
 const visitedIPs = new Set();
 
 // This is our IP blocking middleware.
